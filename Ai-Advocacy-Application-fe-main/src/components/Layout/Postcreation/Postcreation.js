@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
+  Switch,
 } from "@mui/material";
 import "./Postcreation.css";
 import CloseIcon from "@mui/icons-material/Close";
