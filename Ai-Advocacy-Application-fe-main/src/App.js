@@ -10,6 +10,13 @@ import { clearStoredSession, updateStoredTokens } from "./shared/authSession";
 
 const theme = createTheme();
 
+// Inject a demo session so the app works without login
+if (!sessionStorage.getItem("authToken")) {
+  sessionStorage.setItem("authToken", "demo-token");
+  sessionStorage.setItem("orgId", "1");
+  sessionStorage.setItem("role", JSON.stringify(["ROLE_ADMIN"]));
+}
+
 function App() {
   useEffect(() => {
     const newToken = async () => {

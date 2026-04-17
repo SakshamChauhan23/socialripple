@@ -36,7 +36,7 @@ const AppRoutes = () => {
     return (
         <Routes>
             {/* Authentication routes — redirect to dashboard if already logged in */}
-            <Route path="/" element={<PublicRoute element={<Navigate to="/sign-up" />} />} />
+            <Route path="/" element={<Navigate to="/employees" />} />
             <Route path="/sign-up" element={<PublicRoute element={<SignUpPage formType="signUp" />} />} />
             <Route path="/sign-in" element={<PublicRoute element={<SignUpPage formType="signIn" />} />} />
             <Route path="/password-recovery" element={<PublicRoute element={<SignUpPage formType="passwordRecovery" />} />} />
