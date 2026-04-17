@@ -419,31 +419,60 @@ const PostCards = () => {
     ]);
   }, []);
 
-  // Feature 7/9: Hardcoded demo featured posts
+  // All demo posts keyed by category
+  const DEMO_POSTS = {
+    All: [
+      { id: "all-1", content: "Welcome to SocialRipple! Share company updates, celebrate wins, and amplify your brand — all in one place. Start exploring the feed below.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "all-2", content: "Huge congratulations to the entire team for hitting our Q1 targets! Every department showed up and delivered. This is what great teamwork looks like. 🎉", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+    ],
+    Careers: [
+      { id: "careers-1", content: "🌟 We're growing! Payoneer is hiring across Engineering, Sales, and Customer Success. If you know someone great, now's the time to refer them. Your network is your superpower.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "careers-2", content: "Life at Payoneer means working with brilliant people from 190+ countries. We believe diversity isn't just a value — it's our competitive advantage. Come build with us.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "careers-3", content: "Our engineering team just shipped a major infrastructure upgrade — zero downtime, 40% faster response times. Proud of this team. Want to work on challenges like this? We're hiring!", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+    ],
+    "Product Updates": [
+      { id: "product-1", content: "🚀 Introducing Payoneer Capital Advance — get instant access to working capital based on your Payoneer transaction history. No lengthy applications, no waiting. Funds in 24 hours.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "product-2", content: "Multi-currency accounts just got smarter. You can now hold, convert, and send in 70+ currencies from a single dashboard. Managing global payments has never been this seamless.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "product-3", content: "New: Batch Payments 2.0 is live. Pay up to 200 contractors or suppliers in one click. Supports CSV upload, auto-currency detection, and instant confirmation receipts.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: false, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+    ],
+    "Thought Leadership": [
+      { id: "tl-1", content: "The future of work is borderless. Companies that embrace global talent pools today will outpace those that don't within the next decade. At Payoneer, we've built our entire model around this belief.", sourceName: "John Hart, CPO", sourceType: "LEADER_PROFILE", isEditable: false, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "tl-2", content: "Fintech isn't about replacing banks — it's about giving power back to people who were never served by banks in the first place. That's the mission that gets me out of bed every morning.", sourceName: "Sarah Johnson, CEO", sourceType: "LEADER_PROFILE", isEditable: false, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "tl-3", content: "Three things I've learned leading global teams: (1) over-communicate context, not just decisions. (2) trust compounds slowly and breaks fast. (3) the best ideas come from the people closest to the customer.", sourceName: "Sarah Johnson, CEO", sourceType: "LEADER_PROFILE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+    ],
+    Hiring: [
+      { id: "hiring-1", content: "📣 We're looking for a Senior Product Manager to lead our Payments Experience squad. You'll own the roadmap, partner with engineering, and ship features used by millions. Apply or tag someone great!", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "hiring-2", content: "Open role: Staff Engineer — Platform Infrastructure. Remote-first, competitive equity, and the chance to architect systems at global scale. DM me or apply via the link below.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+      { id: "hiring-3", content: "We just opened 12 new roles across APAC and LATAM. Sales, Compliance, and Customer Growth. If you're passionate about financial inclusion and want a global stage — let's talk.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isEditable: true, isFeatured: false, media: [], createdAt: new Date().toISOString() },
+    ],
+  };
+
+  // Feature 7/9: Hardcoded demo featured posts per category
+  const DEMO_FEATURED = {
+    All: [
+      { id: "feat-all-1", content: "🏆 Payoneer named a Top 10 Fintech to Watch in 2026 by Forbes. This recognition belongs to every person on this team. Share this and let the world know what we're building.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isFeatured: true, isEditable: true, featuredUntil: new Date(Date.now() + 7 * 86400000).toISOString(), media: [] },
+    ],
+    Careers: [
+      { id: "feat-careers-1", content: "📌 PINNED: We're running a referral bonus campaign this month — refer a friend for any open role and earn $1,500 if they get hired. Share this post to spread the word!", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isFeatured: true, isEditable: true, featuredUntil: new Date(Date.now() + 14 * 86400000).toISOString(), media: [] },
+    ],
+    "Product Updates": [
+      { id: "feat-product-1", content: "💡 Leadership insight from our CEO: 'The best companies aren't built on ideas alone — they're built on the courage to execute those ideas even when the path is uncertain.'", sourceName: "Sarah Johnson, CEO", sourceType: "LEADER_PROFILE", isFeatured: true, isEditable: false, featuredUntil: new Date(Date.now() + 3 * 86400000).toISOString(), media: [] },
+    ],
+    "Thought Leadership": [
+      { id: "feat-tl-1", content: "🎙️ Our CEO Sarah Johnson will be speaking at Money20/20 next week on 'The Next Billion: Financial Access in Emerging Markets'. Follow along and share her session link with your networks.", sourceName: "Sarah Johnson, CEO", sourceType: "LEADER_PROFILE", isFeatured: true, isEditable: false, featuredUntil: new Date(Date.now() + 5 * 86400000).toISOString(), media: [] },
+    ],
+    Hiring: [
+      { id: "feat-hiring-1", content: "🔥 HOT ROLE: Head of Growth — LATAM. High impact, high visibility, reports directly to the CRO. We need someone who can move fast and think big. Tag your best candidate below.", sourceName: "Payoneer", sourceType: "BUSINESS_PAGE", isFeatured: true, isEditable: true, featuredUntil: new Date(Date.now() + 10 * 86400000).toISOString(), media: [] },
+    ],
+  };
+
+  // Update posts and featured when tab changes
   useEffect(() => {
-    setFeaturedPosts([
-      {
-        id: "demo-1",
-        content: "🚀 Exciting news! We just launched our new product feature that helps teams collaborate 10x faster. Read more about how we're transforming the way people work together.",
-        sourceType: "BUSINESS_PAGE",
-        sourceName: "Payoneer",
-        isFeatured: true,
-        isEditable: true,
-        featuredUntil: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        media: [],
-      },
-      {
-        id: "demo-2",
-        content: "💡 Leadership insight from our CEO: 'The best companies aren't built on ideas alone — they're built on the courage to execute those ideas even when the path is uncertain.'",
-        sourceType: "LEADER_PROFILE",
-        sourceName: "Sarah Johnson, CEO",
-        isFeatured: true,
-        isEditable: false,
-        featuredUntil: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-        media: [],
-      },
-    ]);
-  }, []);
+    const posts = DEMO_POSTS[selected] || DEMO_POSTS["All"];
+    setPostsList(posts);
+    setFeaturedPosts(DEMO_FEATURED[selected] || []);
+    setHasMore(false);
+  }, [selected]);
 
   // Feature 7: Demo feature/unfeature (local state only)
   const handleFeaturePost = () => {
@@ -468,69 +497,7 @@ const PostCards = () => {
     toast.success(post.isEditable ? "Post locked to quick-share only." : "Post is now editable.");
   };
 
-  const fetchAllPosts = async (newPage = 0) => {
-    try {
-      setLoading(true);
-      // Feature 1: use categoryId from selected tab instead of platform
-      const selectedTab = categoryTabs.find((c) => c.name === selected);
-      const payload = {
-        category: selectedTab?.id || id || undefined,
-        search: categoryList?.searchValue,
-      };
-      const response = await getPosts(payload, newPage, limit);
-
-      if (response?.status) {
-        const newPosts = response?.posts || [];
-        if (newPage === 0) {
-          setPostsList(newPosts);
-        } else {
-          setPostsList((prev) => [...prev, ...newPosts]);
-        }
-        // Check if more data is available
-        setHasMore(newPosts.length === limit);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setLoading(false);
-    }
-  };
-  useEffect(() => {
-    setPostsList([]);
-    setPage(0);
-    fetchAllPosts(0);
-  }, [
-    categoryList?.categoriesDetails,
-    selected,
-    location,
-    categoryList?.searchValue,
-  ]);
-  useEffect(() => {
-    const handleScroll = () => {
-      if (
-        window.innerHeight + window.scrollY >=
-        document.body.offsetHeight - 100
-      ) {
-        if (!loading && hasMore) {
-          const nextPage = page + 1;
-          setPage(nextPage);
-          fetchAllPosts(nextPage);
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [page, hasMore, loading]);
-
-  // useEffect(() => {
-  //   fetchAllPosts();
-  // }, [
-  //   categoryList?.categoriesDetails,
-  //   selected,
-  //   location,
-  //   categoryList?.searchValue,
-  // ]);
+  const fetchAllPosts = () => {};
   const clear = () => {};
   return (
     <>
