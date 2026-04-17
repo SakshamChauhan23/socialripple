@@ -2,6 +2,9 @@
   "name": "ai-advocacy-application",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "18.x"
+  },
   "dependencies": {
     "@azure/msal-browser": "^4.16.0",
     "@azure/msal-react": "^3.0.16",
