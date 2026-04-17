@@ -8,6 +8,8 @@
   "env": {
     "NODE_OPTIONS": "--openssl-legacy-provider",
     "SKIP_PREFLIGHT_CHECK": "true",
-    "GENERATE_SOURCEMAP": "false"
+    "GENERATE_SOURCEMAP": "false",
+    "DISABLE_ESLINT_PLUGIN": "true",
+    "CI": "false"
   }
 }
