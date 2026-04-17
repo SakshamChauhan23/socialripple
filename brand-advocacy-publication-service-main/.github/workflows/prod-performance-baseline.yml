@@ -1,0 +1,97 @@
+name: Run Production Performance Baseline
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+
+on:
+  workflow_dispatch:
+    inputs:
+      scenario:
+        description: "Baseline scenario"
+        required: true
+        default: "unauthenticated_control"
+      requests:
+        description: "Requests per endpoint probe"
+        required: true
+        default: "100"
+      concurrency:
+        description: "Concurrent probe workers"
+        required: true
+        default: "20"
+
+concurrency:
+  group: production-performance-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  baseline:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add hosts to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+          ssh-keyscan "${{ secrets.PROD_DB_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Sync ops scripts to app VM
+        run: |
+          rsync -avz ./deploy/prod/ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/publication-service/deploy/prod/
+          ssh root@${{ secrets.PROD_NGINX_VM }} "SOCIALRIPPLE_CI_DEPLOY='1' bash /github/prod/publication-service/deploy/prod/ops/install-app-ops.sh"
+
+      - name: Verify DB VM ops are installed
+        run: |
+          ssh root@${{ secrets.PROD_DB_VM }} \
+            "command -v /usr/local/sbin/socialripple-db-performance-snapshot >/dev/null && \
+             command -v /usr/local/sbin/socialripple-fetch-latest-login-session >/dev/null"
+
+      - name: Hydrate authenticated perf baseline from existing JWT
+        if: ${{ github.event.inputs.scenario != 'unauthenticated_control' }}
+        run: |
+          session_row="$(ssh root@${{ secrets.PROD_DB_VM }} '/usr/local/sbin/socialripple-fetch-latest-login-session')"
+          if [ -z "${session_row}" ]; then
+            echo "No non-expired login session found in advocacy_db.login_sessions"
+            exit 1
+          fi
+
+          IFS=$'\t' read -r perf_user perf_tenant perf_token perf_expires <<< "${session_row}"
+
+          if [ -z "${perf_token}" ] || [ -z "${perf_tenant}" ]; then
+            echo "Fetched login session is missing required token or tenant data"
+            exit 1
+          fi
+
+          echo "::add-mask::${perf_token}"
+          tmp_env_file="$(mktemp)"
+          {
+            printf '%s\n' "PERF_BASELINE_AUTH_MODE=existing_jwt"
+            printf '%s\n' "PERF_BASELINE_AUTH_TOKEN=${perf_token}"
+            printf '%s\n' "PERF_BASELINE_TENANT_ID=${perf_tenant}"
+            printf '%s\n' "PERF_BASELINE_TEST_USERNAME=${perf_user}"
+            printf '%s\n' "PERF_BASELINE_AUTH_EXPIRES_AT=${perf_expires}"
+          } > "${tmp_env_file}"
+          scp "${tmp_env_file}" root@${{ secrets.PROD_NGINX_VM }}:/etc/advocacy/perf-baseline.env
+          ssh root@${{ secrets.PROD_NGINX_VM }} "chmod 600 /etc/advocacy/perf-baseline.env"
+          rm -f "${tmp_env_file}"
+
+      - name: Capture DB snapshot before probe
+        run: |
+          ssh root@${{ secrets.PROD_DB_VM }} "/usr/local/sbin/socialripple-db-performance-snapshot"
+
+      - name: Run app baseline suite
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SCENARIO=${{ github.event.inputs.scenario }} REQUESTS=${{ github.event.inputs.requests }} CONCURRENCY=${{ github.event.inputs.concurrency }} /usr/local/sbin/socialripple-run-performance-baseline"
+
+      - name: Capture DB snapshot after probe
+        run: |
+          ssh root@${{ secrets.PROD_DB_VM }} "/usr/local/sbin/socialripple-db-performance-snapshot"

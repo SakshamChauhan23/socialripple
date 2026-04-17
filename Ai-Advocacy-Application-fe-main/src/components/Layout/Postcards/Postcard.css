@@ -1,0 +1,23 @@
+.postCard {
+    /* margin-bottom: 10px; */
+    border-radius: 16px !important;
+    /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1) !important; */
+    padding: 1px !important;
+}
+
+.postCard-container {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap
+}
+
+@media (max-width: 600px) {
+    .postCard {
+        max-width: 100%;
+        margin: 10px;
+    }
+
+    .postCard-container {
+        display: contents;
+    }
+}

@@ -1,0 +1,50 @@
+name: Rollback Notification Service Production
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: notification-service-production-rollback-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Validate workflow actor
+        run: |
+          if [ "${GITHUB_ACTOR}" != "manuchandran-moonhive" ]; then
+            echo "Only manuchandran-moonhive may run SocialRipple workflows."
+            exit 1
+          fi
+
+      - name: Validate workflow ref
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Notification production rollback must run from refs/heads/main."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Copy files to app VM
+        run: |
+          rsync -avz ./deploy/prod/ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/notification-service/deploy/prod/
+
+      - name: Execute rollback
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' bash /github/prod/notification-service/deploy/prod/rollback.sh"

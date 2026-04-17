@@ -1,0 +1,167 @@
+.logo-container .logo-img {
+  height: 25px;
+  width: 120px;
+}
+.new_ico{
+  width: 120px;
+}
+
+.logo-container {
+  position: absolute;
+  top: 40px;
+  left: 40px;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 480px;
+  min-height: auto;
+  background-color: #fff;
+  padding: 2rem;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.form-header {
+  margin-bottom: 1rem;
+  color: #3B3B3B;
+  font-size: 18px;
+  text-align: left;
+  font-weight: 500;
+}
+
+.SocialLoginContainer {
+  display: flex;
+  justify-content: center;
+  gap: 0.75em;
+  margin-top: 0;
+}
+
+.root-container {
+  min-height: 100vh;
+  height: 100%;
+  background-image: url("../../assets/background.png");
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 5%;
+}
+
+.image-container {
+  display: flex;
+  justify-content: end;
+}
+
+.headerBar {
+  width: 50px;
+  height: 4px;
+  background-color: #0047ab;
+  border-radius: 4px;
+  position: absolute;
+  top: 25px;
+  left: 53px;
+}
+
+a.navigation-texts {
+  color: #2d76dc;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.typo {
+  margin-top: 1em;
+  font-size: 12px;
+}
+
+.recaptcha-debug {
+  margin-bottom: 12px;
+}
+
+input.PhoneInputInput {
+  background-color: #f7f6ff;
+  border: none;
+  margin: 8px 10px;
+}
+
+input.PhoneInputInput .PhoneInput--focus {
+  border: none;
+  position: absolute;
+  left: 0;
+}
+
+.PhoneInputInput:focus {
+  outline: none !important;
+}
+
+.phoneInput {
+  background-color: #f7f6ff;
+  padding-left: 15px;
+  border-radius: 5px;
+  height: 40px;
+  margin-top: 10px;
+  font-size: 10px;
+  font-weight: 400;
+  border: 1px solid #d5deeb;
+}
+
+/* Hide browser's native password reveal icon (Edge, Chrome) */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
+
+
+@media (max-width: 1024px) {
+  .logo-container {
+    left: 30px;
+    top: 30px;
+  }
+}
+
+@media (max-width: 768px) {
+  .root-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0 3%;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  .logo-container {
+    left: 20px;
+    top: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .root-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0 2%;
+  }
+
+  .form-container {
+    padding: 1.25rem;
+    border-radius: 16px 16px 0px 0px;
+  }
+
+  .image-container {
+    justify-content: center;
+  }
+
+  .image-container img {
+    transform: none !important;
+    margin-top: 80px;
+  }
+
+  .logo-container {
+    left: 15px;
+    top: 15px;
+  }
+}

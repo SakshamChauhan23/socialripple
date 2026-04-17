@@ -1,0 +1,86 @@
+name: Manual Resync All Platforms (Dev2)
+
+# One-click "force resync" of social platform ingestion on dev2.
+# Calls the existing permitAll fetch endpoints exposed by
+# XConnectionController via localhost on the dev2 server, so each
+# enabled org/leader is re-fetched immediately rather than waiting
+# for the next scheduled cron run.
+#
+# Use this whenever ingestion code paths change and you want to
+# exercise the new logic against current platform data without
+# waiting up to ~10 minutes for the cron.
+
+on:
+  workflow_dispatch:
+    inputs:
+      platforms:
+        description: "Comma-separated platforms to resync (linkedin,linkedin-v,facebook,instagram,x,x-leader). Default: all."
+        required: false
+        default: "linkedin,linkedin-v,facebook,instagram,x,x-leader"
+
+concurrency:
+  group: publication-service-manual-resync
+  cancel-in-progress: false
+
+jobs:
+  resync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Validate secrets
+        run: |
+          test -n "${{ secrets.DIGITALOCEAN_SSH_KEY }}"
+          test -n "${{ secrets.DEV_NGINX_VM }}"
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.DEV_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Trigger resync via localhost on dev2
+        env:
+          PLATFORMS: ${{ github.event.inputs.platforms }}
+        run: |
+          ssh root@${{ secrets.DEV_NGINX_VM }} bash -s <<'EOF'
+          set -uo pipefail
+          PLATFORMS="${PLATFORMS:-linkedin,linkedin-v,facebook,instagram,x,x-leader}"
+          BASE_URL="http://127.0.0.1:9080/v1/api/x/fetch"
+          IFS=',' read -ra PLATFORM_LIST <<< "$PLATFORMS"
+          OVERALL_RC=0
+          for platform in "${PLATFORM_LIST[@]}"; do
+            platform="$(echo -n "$platform" | tr -d '[:space:]')"
+            if [ -z "$platform" ]; then continue; fi
+            URL="${BASE_URL}/${platform}"
+            echo ""
+            echo "===== ${platform} ====="
+            echo "GET ${URL}"
+            HTTP_CODE="$(curl -sS -o /tmp/resync_resp.json -w '%{http_code}' --max-time 600 "${URL}" || echo 'ERR')"
+            BODY="$(cat /tmp/resync_resp.json 2>/dev/null || true)"
+            echo "HTTP ${HTTP_CODE}"
+            echo "Body: ${BODY}"
+            if [ "${HTTP_CODE}" != "200" ]; then
+              echo "FAILED: ${platform} returned non-200"
+              OVERALL_RC=1
+            fi
+            # Small delay between platforms to avoid hammering the service
+            sleep 5
+          done
+          rm -f /tmp/resync_resp.json
+          if [ "${OVERALL_RC}" -ne 0 ]; then
+            echo ""
+            echo "One or more resync calls failed (see HTTP codes above)."
+            exit 1
+          fi
+          echo ""
+          echo "All requested resync calls returned 200."
+          EOF
+
+      - name: Note about behavior
+        if: always()
+        run: |
+          echo "::notice::A 200 response means the fetch ENDPOINT was called and returned. The actual platform ingestion runs synchronously inside that call - check the publication-service logs on dev2 for per-org sync status, including any 'Marked DISCONNECTED' entries from PR #133's Meta data-access expiry detection."

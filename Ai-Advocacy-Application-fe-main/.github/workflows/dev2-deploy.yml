@@ -1,0 +1,100 @@
+name: Deploy Frontend Dev2
+
+on:
+  push:
+    branches:
+      - develop
+  workflow_dispatch:
+
+concurrency:
+  group: ai-advocacy-application-fe-dev2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      RESOLVED_DEV_API_DOMAIN: ${{ secrets.DEV_API_DOMAIN || secrets.DEV2_API_DOMAIN }}
+
+    steps:
+      - name: Validate dev API configuration
+        run: test -n "${RESOLVED_DEV_API_DOMAIN}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add Dev2 host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.DEV_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Copy source to dev2
+        run: |
+          ssh root@${{ secrets.DEV_NGINX_VM }} 'mkdir -p /github/dev2/advocacy-fe'
+          rsync -avz --delete ./ root@${{ secrets.DEV_NGINX_VM }}:/github/dev2/advocacy-fe/
+
+      - name: Execute deployment script on dev2
+        run: |
+          ssh root@${{ secrets.DEV_NGINX_VM }} \
+            "CI='false' \
+             SOCIALRIPPLE_CI_DEPLOY='1' \
+             DEV_API_DOMAIN='${{ env.RESOLVED_DEV_API_DOMAIN }}' \
+             DEV_USER_API_DOMAIN='${{ secrets.DEV_USER_API_DOMAIN || env.RESOLVED_DEV_API_DOMAIN }}' \
+             DEV_PLATFORM_API_DOMAIN='${{ secrets.DEV_PLATFORM_API_DOMAIN || env.RESOLVED_DEV_API_DOMAIN }}' \
+             DEPLOY_COMMIT_SHA='${{ github.sha }}' \
+             DEPLOY_BRANCH_NAME='${{ github.ref_name }}' \
+             REACT_APP_RECAPTCHA_SITE_KEY='${{ secrets.REACT_APP_RECAPTCHA_SITE_KEY }}' \
+             REACT_APP_GOOGLE_SSO_CLIENT_ID='${{ secrets.REACT_APP_GOOGLE_SSO_CLIENT_ID }}' \
+             REACT_APP_MICROSOFT_CLIENT_ID='${{ secrets.REACT_APP_MICROSOFT_CLIENT_ID }}' \
+             REACT_APP_MICROSOFT_TENANT_ID='${{ secrets.REACT_APP_MICROSOFT_TENANT_ID }}' \
+             bash /github/dev2/advocacy-fe/deploy/dev2/dev-deploy.sh"
+
+      - name: Verify live frontend build metadata
+        run: |
+          python3 - <<'PY2'
+          import json
+          import sys
+          import urllib.request
+
+          url = "https://advocacy-dev.moonhive-server.in.net/build-info.json"
+          with urllib.request.urlopen(url, timeout=20) as response:
+              data = json.load(response)
+
+          expected = "${{ github.sha }}"
+          actual = data.get("commitSha")
+          if actual != expected:
+              print(f"Live build-info mismatch: expected {expected}, got {actual}", file=sys.stderr)
+              sys.exit(1)
+          PY2
+
+      - name: Verify live bundle API host wiring
+        run: |
+          python3 - <<'PY2'
+          import re
+          import sys
+          import urllib.request
+
+          frontend_url = "https://advocacy-dev.moonhive-server.in.net"
+          expected_api_host = "${{ env.RESOLVED_DEV_API_DOMAIN }}"
+
+          with urllib.request.urlopen(f"{frontend_url}/index.html", timeout=20) as response:
+              index_html = response.read().decode("utf-8", "replace")
+
+          match = re.search(r'/static/js/main\.[^"]+\.js', index_html)
+          if not match:
+              print("Could not find live main bundle path", file=sys.stderr)
+              sys.exit(1)
+
+          bundle_path = match.group(0)
+          with urllib.request.urlopen(f"{frontend_url}{bundle_path}", timeout=20) as response:
+              bundle = response.read().decode("utf-8", "replace")
+
+          if expected_api_host not in bundle:
+              print(f"Live bundle does not reference expected API host {expected_api_host}", file=sys.stderr)
+              sys.exit(1)
+          PY2

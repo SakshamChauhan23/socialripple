@@ -1,0 +1,18 @@
+[Unit]
+Description=Advocacy Media Service Production
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/advocacy/media-service-prod/current
+EnvironmentFile=/opt/advocacy/media-service-prod/current/runtime.env
+EnvironmentFile=-/etc/advocacy/media-service-prod.env
+Environment="JAVA_TOOL_OPTIONS=-Xms256m -Xmx512m"
+ExecStart=/usr/bin/java -jar /opt/advocacy/media-service-prod/current/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}
+Restart=always
+RestartSec=5
+User=advocacy
+Group=advocacy
+
+[Install]
+WantedBy=multi-user.target

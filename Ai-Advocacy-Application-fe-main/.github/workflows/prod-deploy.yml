@@ -1,0 +1,51 @@
+name: Deploy Frontend Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: frontend-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote directory
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} 'mkdir -p /github/prod/advocacy-fe'
+
+      - name: Copy files to app VM
+        run: |
+          rsync -avz --delete ./ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/advocacy-fe/
+
+      - name: Execute production deployment script
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' \
+             PROD_FRONTEND_DOMAIN='${{ secrets.PROD_FRONTEND_DOMAIN }}' \
+             PROD_API_DOMAIN='${{ secrets.PROD_API_DOMAIN }}' \
+             PROD_FE_WEBROOT='${{ secrets.PROD_FE_WEBROOT }}' \
+             REACT_APP_RECAPTCHA_SITE_KEY='${{ secrets.REACT_APP_RECAPTCHA_SITE_KEY }}' \
+             REACT_APP_GOOGLE_SSO_CLIENT_ID='${{ secrets.REACT_APP_GOOGLE_SSO_CLIENT_ID }}' \
+             REACT_APP_MICROSOFT_CLIENT_ID='${{ secrets.REACT_APP_MICROSOFT_CLIENT_ID }}' \
+             REACT_APP_MICROSOFT_TENANT_ID='${{ secrets.REACT_APP_MICROSOFT_TENANT_ID }}' \
+             bash /github/prod/advocacy-fe/deploy/prod/prod-deploy.sh"

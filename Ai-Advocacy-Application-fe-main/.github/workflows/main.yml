@@ -1,0 +1,50 @@
+name: Deploy to DigitalOcean
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup SSH
+      uses: webfactory/ssh-agent@v0.5.3
+      with:
+        ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+    - name: Add DigitalOcean server to known_hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan ${{ secrets.DEV_NGINX_VM }} >> ~/.ssh/known_hosts
+
+    - name: Copy files to DigitalOcean (develop)
+      run: |
+        rsync -avz --delete ./ root@${{ secrets.DEV_NGINX_VM }}:/github/advocacy-fe/
+
+    - name: Execute deployment script (develop)
+      run: |
+        ssh root@${{ secrets.DEV_NGINX_VM }} \
+          "SOCIALRIPPLE_CI_DEPLOY='1' REACT_APP_RECAPTCHA_SITE_KEY='${{ secrets.REACT_APP_RECAPTCHA_SITE_KEY }}' bash -s" < ./dev-deploy.sh
+      if: github.ref == 'refs/heads/develop'
+
+    # - name: Execute deployment script (main)
+    #   run: |
+    #     ssh root@${{ secrets.DEV_NGINX_VM }} 'bash -s' < ./prod-deploy.sh
+    #   if: github.ref == 'refs/heads/main'
+
+    # - name: Add source and destination servers to known_hosts
+    #   run: |
+    #     mkdir -p ~/.ssh
+    #     ssh-keyscan ${{ secrets.DEV_NGINX_VM }} >> ~/.ssh/known_hosts
+    #     ssh-keyscan ${{ secrets.PROD_NGINX_VM }} >> ~/.ssh/known_hosts
+    #   if: github.ref == 'refs/heads/main'
+
+    # - name: SCP files from source to destination
+    #   run: |
+    #     ssh root@${{ secrets.DEV_NGINX_VM }} 'ssh-keyscan ${{ secrets.PROD_NGINX_VM }} >> ~/.ssh/known_hosts'
+    #     ssh root@${{ secrets.DEV_NGINX_VM }} 'scp -r /github//ogy-studymatireal-fe/build/* root@${{ secrets.PROD_NGINX_VM }}:/var/www/content-studio.skyoffice360.com/html/'
+    #   if: github.ref == 'refs/heads/main'

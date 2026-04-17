@@ -1,0 +1,39 @@
+name: Deploy Media Service Dev2
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+concurrency:
+  group: media-service-dev2-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.DEV_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Copy source to dev2
+        run: |
+          ssh root@${{ secrets.DEV_NGINX_VM }} 'mkdir -p /github/dev2/media-service'
+          rsync -avz --delete ./ root@${{ secrets.DEV_NGINX_VM }}:/github/dev2/media-service/
+
+      - name: Execute deployment script on dev2
+        run: |
+          ssh root@${{ secrets.DEV_NGINX_VM }} \
+            'bash /github/dev2/media-service/deploy/dev2/deploy.sh'

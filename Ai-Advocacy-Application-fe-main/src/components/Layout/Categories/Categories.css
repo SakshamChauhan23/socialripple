@@ -1,0 +1,137 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
+
+.logo-img {
+  height: 50px;
+  width: 80px;
+}
+
+.folder {
+  color: #f7c333;
+  margin-right: 5px;
+  padding: 0px 5px;
+}
+
+.header {
+  color: #3b3b3b;
+  font-family: "Poppins", serif !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+}
+
+.css-rizt0-MuiTypography-root {
+  display: flex;
+  color: #3b3b3b !important;
+  align-items: center;
+  cursor: pointer;
+  font-size: 16px !important;
+  font-family: "Poppins", serif !important;
+  padding: 0px 5px;
+}
+
+.setting-icon {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+  padding-top: 8px;
+  padding-bottom: 16px;
+  cursor: pointer;
+}
+
+.categoryList:hover {
+  background-color: #e1e8f2;
+  border-radius: 8px !important;
+}
+
+.addCategory-field {
+  font-size: 16px !important;
+  padding: 4px 0 !important;
+  font-weight: normal !important;
+  font-family: "Poppins", serif !important;
+  flex-grow: 1;
+  border: none;
+  background-color: transparent;
+}
+
+.timeline {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  background-color: #f4f6f9;
+  border-radius: 8px;
+  padding: 10px 17px;
+  color: #3b3b3b;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+.ad_timeline {
+  border-radius: 8px;
+  padding: 10px 17px;
+  color: #000;
+  font-weight: bold;
+  text-align: left;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.ad_timeline:hover{
+  background-color: #0047ab;
+  border-radius: 8px;
+  color: #fff;
+}
+
+.timeline-active {
+  background-color: #0047ab;
+  color: #fff;
+}
+
+.routeListItem {
+  border-radius: 8px;
+}
+
+.routeListItem:hover {
+  background-color: #e1e8f2;
+}
+
+.routeListItem-active {
+  background-color: #e1e8f2;
+}
+
+.category-container {
+  margin-bottom: 16px;
+  margin-top: 16px;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  padding: 16px !important;
+}
+
+/* .setting-icon:hover {
+  background-color: #0047ab;
+  border-radius: 8px;
+  color: #fff;
+} */
+.setting-icon {
+  /* background-color: #0047ab; */
+  padding: 10px 17px;
+}
+.route_name{
+    color: white;
+    font-weight: bold;
+    text-align: left;
+}
+
+.active-route {
+  background-color: #0047ab; /* Light blue or any highlight color */
+  color: white;
+  border-radius: 8px;
+  padding: 10px 17px;
+}
+
+@media (max-width: 600px) {
+  .category-container {
+    margin: 90px 10px 10px 10px;
+  }
+}

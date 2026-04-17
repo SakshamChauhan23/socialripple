@@ -1,0 +1,16 @@
+server {
+    listen 80;
+    server_name __DEV2_FRONTEND_DOMAIN__;
+
+    root __DEV2_FE_WEBROOT__;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /static/ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable";
+    }
+}

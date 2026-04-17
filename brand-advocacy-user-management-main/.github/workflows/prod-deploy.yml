@@ -1,0 +1,71 @@
+name: Deploy User Management Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: user-management-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Validate production configuration
+        run: |
+          test -n "${{ secrets.PROD_FRONTEND_DOMAIN }}"
+          test -n "${{ secrets.PROD_API_DOMAIN }}"
+          test -n "${{ secrets.APP_OAUTH_LINKEDIN_CLIENT_ID }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote directory
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} 'mkdir -p /github/prod/user-management'
+
+      - name: Copy files to app VM
+        run: |
+          rsync -avz --delete ./ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/user-management/
+
+      - name: Execute production deployment script
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' \
+             DB_HOST='${{ secrets.PROD_DB_HOST }}' \
+             DB_PORT='${{ secrets.PROD_DB_PORT }}' \
+             DB_NAME='${{ secrets.PROD_DB_NAME }}' \
+             DB_USER='${{ secrets.PROD_DB_USER }}' \
+             DB_PASSWORD='${{ secrets.PROD_DB_PASSWORD }}' \
+             APP_JWT_SECRET='${{ secrets.APP_JWT_SECRET }}' \
+             APP_AI_GEMINI_API_KEY='${{ secrets.APP_AI_GEMINI_API_KEY }}' \
+             APP_AI_GEMINI_API_URL='${{ secrets.APP_AI_GEMINI_API_URL }}' \
+             APP_AI_GEMINI_FLASH_API_URL='${{ secrets.APP_AI_GEMINI_FLASH_API_URL }}' \
+             APP_OAUTH_LINKEDIN_CLIENT_ID='${{ secrets.APP_OAUTH_LINKEDIN_CLIENT_ID }}' \
+             APP_OAUTH_LINKEDIN_ORG_CLIENT_ID='${{ secrets.APP_OAUTH_LINKEDIN_ORG_CLIENT_ID }}' \
+             APP_CORS_ALLOWED_ORIGINS='${{ secrets.APP_CORS_ALLOWED_ORIGINS }}' \
+             APP_FRONTEND_BASE_URL='https://${{ secrets.PROD_FRONTEND_DOMAIN }}' \
+             APP_API_BASE_URL='https://${{ secrets.PROD_API_DOMAIN }}' \
+             APP_PROXY_EXTERNAL_INGESTION_URL='http://127.0.0.1:8080' \
+             APP_PROXY_PRODUCTS_URL='http://127.0.0.1:8082' \
+             APP_PROXY_ORDERS_URL='http://127.0.0.1:8083' \
+             APP_SECURITY_RECAPTCHA_SECRET_KEY='${{ secrets.APP_SECURITY_RECAPTCHA_SECRET_KEY }}' \
+             APP_SECURITY_RECAPTCHA_VERIFY_URL='${{ secrets.APP_SECURITY_RECAPTCHA_VERIFY_URL }}' \
+             APP_SECURITY_RECAPTCHA_MIN_SCORE='${{ vars.APP_SECURITY_RECAPTCHA_MIN_SCORE }}' \
+             PROD_API_DOMAIN='${{ secrets.PROD_API_DOMAIN }}' \
+             bash /github/prod/user-management/deploy/prod/prod-deploy.sh"

@@ -1,0 +1,15 @@
+.tea-cup-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.tea-cup {
+  position: relative;
+}
+
+.tea-emoji {
+  font-size: 80px;
+  display: block;
+}

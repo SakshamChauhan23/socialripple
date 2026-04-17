@@ -1,0 +1,20 @@
+server {
+    listen 80;
+    server_name example-ui.domain.tld;
+
+    root /var/www/example-ui.domain.tld/current;
+    index index.html;
+
+    location / {
+        try_files $uri /index.html;
+    }
+
+    location /static/ {
+        expires 7d;
+        add_header Cache-Control "public, max-age=604800, immutable";
+    }
+
+    location ~ /.well-known/acme-challenge {
+        allow all;
+    }
+}

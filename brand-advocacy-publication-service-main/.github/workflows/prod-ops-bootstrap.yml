@@ -1,0 +1,47 @@
+name: Bootstrap Production Ops
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: production-ops-bootstrap-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6.0.2
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.10.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add hosts to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+          ssh-keyscan "${{ secrets.PROD_DB_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Sync ops scripts to app VM
+        run: |
+          rsync -avz ./deploy/prod/ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/publication-service/deploy/prod/
+
+      - name: Install app VM ops
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' bash /github/prod/publication-service/deploy/prod/ops/install-app-ops.sh"
+
+      - name: Sync ops scripts to DB VM
+        run: |
+          ssh root@${{ secrets.PROD_DB_VM }} 'mkdir -p /github/prod/publication-service/deploy/prod'
+          rsync -avz ./deploy/prod/ root@${{ secrets.PROD_DB_VM }}:/github/prod/publication-service/deploy/prod/
+
+      - name: Install DB VM ops
+        run: |
+          ssh root@${{ secrets.PROD_DB_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' bash /github/prod/publication-service/deploy/prod/ops/install-db-ops.sh"

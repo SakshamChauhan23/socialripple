@@ -1,0 +1,51 @@
+.teamsDeatail-container {
+  margin-bottom: 16px;
+  border-radius: 8px !important;
+  /* box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1) !important; */
+  padding: 16px !important;
+  /* margin-top: 111px !important; */
+}
+
+.team-member-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-image: linear-gradient(
+      to right,
+      rgba(30, 90, 240, 0.9),
+      rgba(0, 71, 171, 0.8)
+    ),
+    url(../../../../assets/profile/bg.png);
+
+  background-size: cover;
+  background-position: center;
+  color: white;
+  padding: 29px;
+  border-radius: 16px;
+}
+
+.topEngaged-posts {
+  border-radius: 12px !important;
+  box-shadow: none !important;
+  display: flex !important;
+  padding: 8px !important;
+  border: 1px solid #e1dddd !important;
+  background-color: #fcfcff !important;
+  min-height: 180px !important;
+  position: relative !important;
+  margin-top: 12px !important;
+}
+
+.postedBy {
+  position: absolute;
+  top: 0 !important;
+  padding-top:8px ;
+  color: #ffffff !important;
+  font-weight: 500 !important;
+  font-size: 12px !important;
+  /* margin-top: 8px; */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.6), transparent);
+  width: 100% !important;
+  height: 40px !important;
+  padding-left: 15px;
+}

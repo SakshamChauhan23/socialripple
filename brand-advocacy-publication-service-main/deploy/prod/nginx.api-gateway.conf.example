@@ -1,0 +1,32 @@
+server {
+    listen 80;
+    server_name example-api.domain.tld;
+
+    location /external-ingestion/ {
+        proxy_pass http://127.0.0.1:8080/;
+    }
+
+    location /v1/ {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location /ws {
+        proxy_pass http://127.0.0.1:8081;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_read_timeout 600s;
+        proxy_send_timeout 600s;
+    }
+
+    location /notifications/ {
+        proxy_pass http://127.0.0.1:8082/;
+    }
+
+    location /media/ {
+        proxy_pass http://127.0.0.1:8084/;
+    }
+}

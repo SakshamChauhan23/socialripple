@@ -1,0 +1,67 @@
+name: Deploy Publication Service Production
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+concurrency:
+  group: publication-service-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Validate public URL configuration
+        run: |
+          test -n "${{ secrets.PROD_FRONTEND_DOMAIN }}"
+          test -n "${{ secrets.PROD_API_DOMAIN }}"
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote directory
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} 'mkdir -p /github/prod/publication-service'
+
+      - name: Copy files to app VM
+        run: |
+          rsync -avz --delete ./ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/publication-service/
+
+      - name: Execute production deployment script
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "APP_FRONTEND_BASE_URL='https://${{ secrets.PROD_FRONTEND_DOMAIN }}' \
+             APP_API_BASE_URL='https://${{ secrets.PROD_API_DOMAIN }}' \
+             SOCIALRIPPLE_CI_DEPLOY='1' \
+             PROD_API_DOMAIN='${{ secrets.PROD_API_DOMAIN }}' \
+             DB_HOST='${{ secrets.PROD_DB_HOST }}' \
+             DB_PORT='${{ secrets.PROD_DB_PORT }}' \
+             DB_NAME='${{ secrets.PROD_DB_NAME }}' \
+             DB_USER='${{ secrets.PROD_DB_USER }}' \
+             DB_PASSWORD='${{ secrets.PROD_DB_PASSWORD }}' \
+             APP_CORS_ALLOWED_ORIGINS='${{ secrets.APP_CORS_ALLOWED_ORIGINS }}' \
+             APP_OAUTH_X_CONSUMER_KEY='${{ secrets.APP_OAUTH_X_CONSUMER_KEY }}' \
+             APP_OAUTH_X_CONSUMER_SECRET='${{ secrets.APP_OAUTH_X_CONSUMER_SECRET }}' \
+             APP_OAUTH_META_APP_ID='${{ secrets.APP_OAUTH_META_APP_ID }}' \
+             APP_OAUTH_META_APP_SECRET='${{ secrets.APP_OAUTH_META_APP_SECRET }}' \
+             APP_OAUTH_LINKEDIN_CLIENT_ID='${{ secrets.APP_OAUTH_LINKEDIN_CLIENT_ID }}' \
+             APP_OAUTH_LINKEDIN_CLIENT_SECRET='${{ secrets.APP_OAUTH_LINKEDIN_CLIENT_SECRET }}' \
+             APP_OAUTH_LINKEDIN_SCOPE='${{ secrets.APP_OAUTH_LINKEDIN_SCOPE }}' \
+             APP_OAUTH_LINKEDIN_ORG_CLIENT_ID='${{ secrets.APP_OAUTH_LINKEDIN_ORG_CLIENT_ID }}' \
+             APP_OAUTH_LINKEDIN_ORG_CLIENT_SECRET='${{ secrets.APP_OAUTH_LINKEDIN_ORG_CLIENT_SECRET }}' \
+             bash /github/prod/publication-service/deploy/prod/prod-deploy.sh"

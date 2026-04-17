@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>reCAPTCHA v3 Token Viewer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 30px;
+    }
+    #tokenBox {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f5f5f5;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <h2>reCAPTCHA v3 Token Generator</h2>
+  <input id="siteKeyInput" type="text" placeholder="Enter reCAPTCHA site key" style="width: 320px; padding: 8px;" />
+  <button onclick="generateToken()">Generate reCAPTCHA Token</button>
+
+  <div id="tokenBox">
+    <strong>Generated Token:</strong>
+    <p id="tokenText">[Token will appear here]</p>
+  </div>
+
+  <script>
+    function loadRecaptcha(siteKey) {
+      return new Promise(function (resolve, reject) {
+        const existingScript = document.getElementById('recaptcha-script');
+        if (existingScript) {
+          existingScript.remove();
+          delete window.grecaptcha;
+        }
+
+        const script = document.createElement('script');
+        script.id = 'recaptcha-script';
+        script.src = 'https://www.google.com/recaptcha/api.js?render=' + encodeURIComponent(siteKey);
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = function () {
+          reject(new Error('Failed to load reCAPTCHA script.'));
+        };
+        document.head.appendChild(script);
+      });
+    }
+
+    function generateToken() {
+      const siteKey = document.getElementById('siteKeyInput').value.trim();
+      if (!siteKey) {
+        document.getElementById('tokenText').innerText = 'Enter a site key first.';
+        return;
+      }
+
+      loadRecaptcha(siteKey).then(function () {
+        grecaptcha.ready(function () {
+          grecaptcha.execute(siteKey, { action: 'submit' }).then(function (token) {
+            document.getElementById('tokenText').innerText = token;
+            console.log("Generated Token:", token);
+          });
+        });
+      }).catch(function (error) {
+        document.getElementById('tokenText').innerText = error.message;
+      });
+    }
+  </script>
+</body>
+</html>

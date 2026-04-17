@@ -1,0 +1,38 @@
+name: Rollback Publication Service Production
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: publication-service-production-rollback-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DIGITALOCEAN_SSH_KEY }}
+
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan "${{ secrets.PROD_NGINX_VM }}" >> ~/.ssh/known_hosts
+
+      - name: Copy files to app VM
+        run: |
+          rsync -avz ./deploy/prod/ root@${{ secrets.PROD_NGINX_VM }}:/github/prod/publication-service/deploy/prod/
+
+      - name: Execute rollback
+        run: |
+          ssh root@${{ secrets.PROD_NGINX_VM }} \
+            "SOCIALRIPPLE_CI_DEPLOY='1' \
+             PROD_API_DOMAIN='${{ secrets.PROD_API_DOMAIN }}' \
+             bash /github/prod/publication-service/deploy/prod/rollback.sh"

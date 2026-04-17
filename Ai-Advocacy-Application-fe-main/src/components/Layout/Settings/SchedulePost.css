@@ -1,0 +1,90 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background-color: #f4f4f4;
+  }
+  
+  .modal {
+    background-color: white;
+    width: 500px;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.15);
+    margin: 50px auto;
+  }
+  
+  .modal h2 {
+    margin-top: 0;
+    font-size: 24px;
+  }
+  
+  .modal label {
+    display: block;
+    margin: 15px 0 5px;
+    color: #666;
+    font-weight: 500;
+  }
+  
+  .modal input[type="date"],
+  .modal select,
+  .modal input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+  
+  .time-container {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  
+  .time-container input[type="number"] {
+    width: 60px;
+    text-align: center;
+  }
+  
+  .time-container select {
+    padding: 6px;
+  }
+  
+  .checkboxes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+  }
+  
+  .checkboxes label {
+    font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  
+  .btn {
+    padding: 10px 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .btn-cancel {
+    background-color: #f0f0f0;
+    color: #555;
+  }
+  
+  .btn-confirm {
+    background-color: #0047FF;
+    color: white;
+  }
+  

@@ -1,0 +1,38 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    /* overflow: hidden; */
+}
+
+* {
+    font-family: "Poppins", serif;
+}
+
+.scroll-container {
+    scrollbar-width: thin;
+    scrollbar-color: #b0b0b04f transparent !important;
+  }
+  
+  .grid-container::-webkit-scrollbar {
+    width: 2px;
+  }
+  
+  .grid-container::-webkit-scrollbar-track {
+    background: transparent; /* remove white border around track */
+  }
+  
+  .grid-container::-webkit-scrollbar-thumb {
+    background-color: #b0b0b0; /* custom thumb color */
+    border-radius: 10px;
+    border: none; /* no inner border */
+  }
+
+  .grecaptcha-badge {
+    visibility: hidden !important; /* completely hide */
+    /* OR agar shift karna ho to */
+    /* bottom: 80px !important;
+       right: 20px !important; */
+  }

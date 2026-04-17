@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Microsoft Login Token Viewer</title>
+</head>
+<body>
+  <h2>Microsoft Login Test (ID Token Only)</h2>
+  <button onclick="redirectToMicrosoftLogin()">Login with Microsoft</button>
+
+  <h3>ID Token:</h3>
+  <textarea id="idTokenOutput" style="width: 100%; height: 200px;">Not received yet.</textarea>
+
+  <script>
+    const clientId = '83049195-d2ad-463b-876b-2f840c71d7c6'; // replace this with your actual Azure AD client ID
+    const redirectUri = `${window.location.origin}/sign-up?token=ea9a8e1f-f002-45e9-8228-fbb38a00157b`;
+    const tenant = 'dbbbfe2b-5bd3-4cfb-8a8b-6e9b99b94ae5'; // or use your tenant ID
+
+    function redirectToMicrosoftLogin() {
+      const params = new URLSearchParams({
+        client_id: clientId,
+        response_type: 'id_token',
+        redirect_uri: redirectUri,
+        scope: 'openid profile email',
+        response_mode: 'fragment',
+        state: '12345',
+        nonce: '67890'
+      });
+
+      const authUrl = `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize?${params.toString()}`;
+      window.location.href = authUrl;
+    }
+
+    function getIdTokenFromUrl() {
+      const hash = window.location.hash.substr(1); // get part after #
+      const params = new URLSearchParams(hash);
+      const idToken = params.get('id_token');
+
+      if (idToken) {
+        document.getElementById('idTokenOutput').value = idToken;
+        // Optional: log it or send to backend here
+      }
+    }
+
+    // Execute on load
+    getIdTokenFromUrl();
+  </script>
+</body>
+</html>

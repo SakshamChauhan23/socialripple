@@ -1,0 +1,141 @@
+.settings-container {
+    padding: 20px;
+    border-radius: 16px !important;
+    margin: auto;
+    /* margin-top: 111px !important; */
+    /* height: 100vh; */
+    box-shadow: none !important;
+}
+
+.section {
+    margin-bottom: 20px;
+}
+
+.trending-textarea {
+    margin-top: 10px;
+    background: #fff;
+    border-radius: 8px;
+}
+
+.trending-chip-row {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.trending-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.helper-text {
+    margin-top: 8px;
+    color: #95919d;
+}
+
+.helper-text.error {
+    color: #da4040;
+}
+
+.trending-accordion .MuiAccordionSummary-root {
+    padding: 0 !important;
+}
+
+.trending-accordion .MuiAccordionSummary-root {
+    align-items: center;
+    min-height: 72px;
+    padding-right: 20px !important;
+}
+
+.trending-accordion .MuiAccordionSummary-expandIconWrapper {
+    right: -10px;
+}
+
+.trending-summary {
+    background: transparent;
+    cursor: pointer;
+    padding: 0;
+}
+
+.trending-accordion .MuiAccordionSummary-expandIconWrapper {
+    top: auto;
+    margin: 0;
+}
+
+.trending-chip-row .MuiChip-root {
+    background-color: #edeff2;
+}
+
+.integrations,
+.reset-password {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: #f5f5f5;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.integrations:hover,
+.reset-password:hover {
+    background: #ececec;
+}
+
+.sub-title {
+    font-weight: 500 !important;
+    font-size: 16px !important;
+    letter-spacing: 0% !important;
+    color: #3B3B3B !important;
+}
+
+.expanded {
+    transform: rotate(180deg);
+}
+
+.mini-title {
+    font-weight: 400 !important;
+    font-size: 12px !important;
+    letter-spacing: 0% !important;
+    color: #95919D !important;
+}
+
+.social-media-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background: #fff;
+    border-radius: 6px;
+    margin-top: 5px;
+    border-bottom: 0.6px solid #DFD7D7 !important;
+}
+
+.social-media-item .MuiListItemIcon-root {
+    min-width: 40px;
+}
+
+.MuiDialog-paper {
+    border-radius: 12px;
+    /* padding: 20px; */
+}
+
+.MuiDialogTitle-root {
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.MuiButton-root {
+    text-transform: none;
+}
+
+.setting-titles {
+    font-weight: 500 !important;
+    font-size: 14px !important;
+    letter-spacing: 0% !important;
+    color: #A7A4A4 !important;
+    margin-bottom: 5px !important;
+}

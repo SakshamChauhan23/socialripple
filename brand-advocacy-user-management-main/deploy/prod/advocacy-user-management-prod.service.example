@@ -1,0 +1,18 @@
+[Unit]
+Description=Advocacy User Management Production
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/advocacy/user-management-prod/current
+EnvironmentFile=/opt/advocacy/user-management-prod/current/runtime.env
+EnvironmentFile=-/etc/advocacy/user-management-prod.env
+Environment="JAVA_TOOL_OPTIONS=-Xms512m -Xmx1024m"
+ExecStart=/opt/jdk-21/bin/java -jar /opt/advocacy/user-management-prod/current/app.jar --spring.profiles.active=${SPRING_PROFILES_ACTIVE}
+Restart=always
+RestartSec=5
+User=advocacy
+Group=advocacy
+
+[Install]
+WantedBy=multi-user.target

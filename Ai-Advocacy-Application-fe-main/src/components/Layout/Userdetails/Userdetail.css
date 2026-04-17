@@ -1,0 +1,35 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.back-img {
+    position: absolute;
+    top: 0;
+    left: 7px;
+    width: 90%;
+    height: 120px;
+    background-image: url('../../../assets/background-user.png');
+    background-size: cover;
+    background-position: "center";
+    margin: 16px 0px 0px 10px !important;
+}
+
+.userDetails {
+    margin-top: 40px !important;
+    color: #3B3B3B;
+    font-family: "Poppins", serif !important;
+    font-size: 24px !important;
+}
+
+.userDetail-container {
+    border-radius: 12px !important;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1) !important;
+    text-align: center;
+    position: relative;
+    margin-bottom: 16px;
+    margin-top: 111px !important;
+}
+
+@media (max-width: 600px) {
+    .userDetail-container {
+        margin: 90px 10px 10px 10px;
+    }
+}
